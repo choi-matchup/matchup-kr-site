@@ -123,6 +123,8 @@ function koreanize(html, ctx) {
   html = html.replace(/system-ui,sans-serif/g, KR_FONT);
   // 한국어는 낱말 중간에서 줄을 바꾸지 않게("크/게" 방지) — 영어 페이지 모양은 그대로
   html = html.replace("</head>", "<style>body { word-break: keep-all; overflow-wrap: anywhere; }</style>\n</head>");
+  // 언어를 고르면 쿠키(mu_lang)에 남긴다 — matchup.fit 첫 화면의 '한국어 브라우저 → /kr' 이동이 이 쿠키가 있으면 건너뛴다
+  html = html.replace("</head>", `<script>document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[data-lang]");if(a)document.cookie="mu_lang="+a.getAttribute("data-lang")+"; path=/; max-age=31536000; samesite=lax"});</script>\n</head>`);
   html = html.replace(/((?:src|href)=")\/(assets\/|site\.js)/g, `$1${source}/$2`);     // 같은 디자인: 영어 사이트의 파일
   // 매치업 앱·서버 주소: 이 빌드의 환경(스테이징이면 스테이징)으로, 앱은 한국어로 열리게
   for (const origin of new Set([...html.matchAll(/(https:\/\/[a-z0-9.-]+)\/(?:login\?from=fitting-room|welcome\?s=)/g)].map(m => m[1]))) {
