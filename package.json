@@ -1,0 +1,8 @@
+{
+  "name": "matchup-kr-site",
+  "private": true,
+  "description": "MatchUp 한국 피팅룸 (matchup.fit/kr)",
+  "scripts": { "build": "node build-kr.js" },
+  "engines": { "node": ">=20" },
+  "dependencies": { "qrcode": "^1.5.4" }
+}
