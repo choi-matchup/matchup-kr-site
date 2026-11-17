@@ -1,0 +1,82 @@
+# 작동 방식(/kr/how-it-works) 문구표 — 영어 matchup.fit/how-it-works의 틀로 만든다.
+# 머리글·바닥글 문구는 fitting-room.ko.txt(공통)를 같이 쓰고, 이 표는 이 페이지 글자만. 같은 EN이면 이 표가 이긴다.
+# 쓰는 법은 fitting-room.ko.txt 맨 위와 같다(EN:/KO:, <br> 줄바꿈, IMG: 사진 바꾸기).
+# 처음 문구는 기존 /ko/how-it-works 번역 그대로 가져왔고, 2026-11-18 오너 요청 줄을 고쳤다.
+
+# ---- 페이지 정보 ----
+EN: How It Works | Phone Foot Scanner for Shoe Size | MatchUp
+KO: 작동 방식 | 휴대폰 발 스캔으로 찾는 신발 사이즈 | MatchUp
+EN: A customer photographs their foot on a sheet of paper. MatchUp measures the foot and matches the foot to the last each shoe was built on.
+KO: 고객이 종이 위에 발을 올리고 사진을 찍습니다. MatchUp은 발을 측정하고, 각 신발을 만든 라스트와 발을 비교합니다.
+EN: MatchUp fit visualizer showing US M 8, 9 and 10 on a snug-to-roomy scale
+KO: 265, 270, 275 사이즈의 착용감을 조임부터 여유까지 보여주는 MatchUp 착용감 카드
+
+# ---- 첫 줄 ----
+EN: From a phone photo to the right size
+KO: 휴대폰 사진 한 장으로<br>어떻게 맞는 느낌을 전달하죠?
+EN: Your customers don't need an app or any special equipment. A customer photographs their foot on a sheet of paper; the engine measures it and matches it against the last each shoe was built on.
+KO: 고객은 앱을 설치하거나 별도의 장비를 준비할 필요가 없습니다. 고객이 종이 위에 발을 올리고 사진을 찍으면, MatchUp이 발을 측정하고 각 신발을 만든 라스트와 비교합니다.
+
+# ---- 세 단계 ----
+EN: Three steps, and we handle the rest
+KO: 휴대폰과 종이 한 장, 나머지는 MatchUp이 알아서 합니다.
+EN: A sheet of paper is the only reference the scan needs, because its known size calibrates the measurement. Place it, step on it, photograph from above.
+KO: 스캔에 필요한 기준은 종이 한 장뿐입니다. 종이의 크기가 정해져 있어서 측정 기준이 됩니다. 종이를 놓고, 위에 올라서서, 위에서 사진을 찍으세요.
+EN: A sheet of printer paper laid flat on the floor
+KO: 바닥에 평평하게 놓인 프린터 용지 한 장
+EN: 01 · Place the paper on the floor
+KO: 01 · 바닥에 종이를 놓으세요
+EN: A sock-clad foot standing on the sheet of paper
+KO: 양말을 신은 발로 종이 위에 선 모습
+EN: 02 · Stand with your foot on it, heel touching the wall
+KO: 02 · 뒤꿈치를 벽에 붙이고 종이 위에 서세요
+EN: Top-down view of the foot lined up inside the on-screen capture frame
+KO: 화면의 촬영 틀 안에 발을 맞춘 모습을 위에서 본 장면
+EN: 03 · With all four corners of the paper inside the frame, photograph from above
+KO: 03 · 종이의 네 모서리가 모두 화면 틀 안에 들어오게 하고 위에서 사진을 찍으세요
+# 02·03 사진(오너 요청 11/18 — 사진 파일을 받으면 kr/img/에 두고 아래 두 줄의 #을 지운다)
+# IMG: assets/img/right_foot.png -> /kr/img/how-step-02.png
+# IMG: assets/img/frame.png -> /kr/img/how-step-03.png
+
+# ---- 사진을 찍은 다음 ----
+EN: Scan · Measure · Match · Recommend
+KO: 스캔 · 측정 · 비교 · 추천
+EN: What happens after the photo
+KO: 사진을 찍은 다음에는
+EN: 01 · Measure
+KO: 01 · 측정
+EN: MatchUp extracts measurements
+KO: MatchUp이 발의 3D 치수를 추출합니다
+EN: The photo is processed to pull length, width, girths, and arch length, the measurements that actually determine fit.
+KO: 사진을 분석해 발 길이, 발 너비, 발 둘레, 아치 길이 등 실제로 착용감을 좌우하는 치수를 뽑아냅니다.
+EN: 3D scatter of foot length, width, and ball girth, positioning this foot within the shoe-last dataset
+KO: 발 길이, 발 너비, 볼 둘레의 3D 산점도. 이 발이 라스트 데이터 안에서 어디에 있는지 보여줍니다.
+EN: 02 · Match
+KO: 02 · 비교
+EN: Measurements meet the last
+KO: 신발의 내부 구두골과 비교합니다
+EN: The foot is compared against the last each shoe was built on, the same geometry the factory used. The result is a fit that reflects that specific model, not a generic size chart.
+KO: 발을 각 신발을 만든 라스트, 즉 공장에서 사용한 것과 같은 형태와 비교합니다. 그래서 일반적인 사이즈표가 아니라 그 모델에 맞춘 착용감을 알려줍니다.
+EN: A row of shoe lasts on a concrete floor, each hand-marked with its size and width code
+KO: 콘크리트 바닥 위에 놓인 라스트들. 각각 사이즈와 너비 코드가 손으로 적혀 있습니다.
+EN: 03 · Recommend
+KO: 03 · 추천
+EN: A size, and how it will feel
+KO: 추천 사이즈와 착용감
+EN: The customer sees a recommended size and a snug-to-roomy preview across the scale, so they can size up or down on purpose instead of by guess.
+KO: 고객은 추천 사이즈와 함께 조임부터 여유까지 착용감 미리보기를 확인합니다. 그래서 짐작이 아니라 이유를 알고 사이즈를 올리거나 내릴 수 있습니다.
+EN: Snug → roomy
+KO: 조임 → 여유
+EN: Fit visualizer card for US M 10 showing the snug-to-roomy fit across both feet
+KO: 양발의 착용감을 조임부터 여유까지 보여주는 275 사이즈 착용감 카드
+IMG: assets/img/fit-usm10.png -> /assets/img/fit-usm10-ko.png
+
+# ---- 마지막 ----
+EN: Shoes are personal.
+KO: 신발은 취향대로.
+EN: Fit should be too.
+KO: 착용감은 내 발에 맞게.
+EN: See the sizer running on your own catalog.
+KO: 귀사 상품에 사이즈 추천을 직접 적용해 보세요.
+EN: Try it for free on your store
+KO: 내 쇼핑몰에서 무료로 사용해 보기

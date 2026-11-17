@@ -18,14 +18,15 @@ const path = require("path");
 const KR_DIR = path.join(__dirname, "kr");
 const SHOP_ID = "fittingroom.matchup.fit";
 // 어드민 카테고리(영어 이름, 서버 fitting_room_fit.CATEGORIES) → 한국 사이트 분류 이름과 순서
-const GROUP_KO = { "Running": "러닝", "Sneakers": "스니커즈", "Boots": "부츠", "Leather shoes": "구두·로퍼", "": "기타" };
+// 분류 이름은 영어 그대로(2026-11-18 오너). 순서는 이 표 순서.
+const GROUP_KO = { "Running": "Running", "Sneakers": "Sneakers", "Boots": "Boots", "Leather shoes": "Leather shoes", "": "More" };
 // 신발 페이지의 고정 문구(영어 신발 페이지의 같은 자리). 어드민 글이 아니라 페이지 틀의 글자.
 const KO = {
   back: "피팅룸",
   find: "내 사이즈 찾기",
   scannedBefore: "측정한 적 있으신가요?",
   login: "로그인",
-  more: (group) => `다른 ${group} 신발`,
+  more: (group) => `More in ${group}`,   // 영어 신발 페이지와 같게(분류 이름이 영어라서)
   photo: (name, i, n) => `${name}, 사진 ${i} / ${n}`,
   showPhoto: (i) => `사진 ${i} 보기`,
   qrDialog: "QR코드를 스캔해 내 사이즈 찾기",
@@ -75,31 +76,38 @@ function draftShoes(dir, enLanding, source) {
   }).sort((a, b) => a.order - b.order);
 }
 
-function readTable(problem) {
-  const pairs = [], links = [], drops = [];
-  let en = null;
-  read("fitting-room.ko.txt").split(/\r?\n/).forEach((line, i) => {
-    if (!line.trim() || line.startsWith("#")) return;
-    const m = line.match(/^(EN|KO|LINK|DROP):\s?(.*)$/);
-    if (!m) return problem(`kr/fitting-room.ko.txt line ${i + 1}: starts with EN:, KO:, LINK: or DROP:`);
-    const [, key, value] = m;
-    if (key === "EN") { en = value; return; }
-    if (key === "KO") {
-      if (en === null) return problem(`kr/fitting-room.ko.txt line ${i + 1}: a KO: line needs an EN: line above it`);
-      pairs.push([en, value]); en = null; return;
-    }
-    if (key === "DROP") { drops.push(value.trim()); return; }
-    const [from, to] = value.split("->").map(s => s.trim());
-    if (!from || !to) return problem(`kr/fitting-room.ko.txt line ${i + 1}: LINK: /english-path -> /korean-path`);
-    links.push([from, to]);
-  });
-  pairs.sort((a, b) => b[0].length - a[0].length);   // 긴 글자 먼저(짧은 글자가 긴 글자 안을 바꾸지 않게)
-  return { pairs, links, drops };
+/* 문구표 읽기. 여러 표를 합치면 뒤 표가 앞 표의 같은 EN을 덮는다(페이지 표 > 공통 표).
+   EN:/KO: 쌍(KO에 <br> = 줄바꿈, KO가 EN과 같으면 일부러 영어로 두는 글자), LINK: 주소 바꾸기,
+   DROP: 그 글자의 링크 빼기, IMG: 영어 페이지 사진 → 한국 사이트 사진(kr/img/ 폴더). */
+function readTable(problem, files = ["fitting-room.ko.txt"]) {
+  const byEn = new Map(), links = [], drops = [], imgs = [];
+  for (const file of files) {
+    let en = null;
+    read(file).split(/\r?\n/).forEach((line, i) => {
+      if (!line.trim() || line.startsWith("#")) return;
+      const m = line.match(/^(EN|KO|LINK|DROP|IMG):\s?(.*)$/);
+      if (!m) return problem(`kr/${file} line ${i + 1}: starts with EN:, KO:, LINK:, DROP: or IMG:`);
+      const [, key, value] = m;
+      if (key === "EN") { en = value; return; }
+      if (key === "KO") {
+        if (en === null) return problem(`kr/${file} line ${i + 1}: a KO: line needs an EN: line above it`);
+        byEn.set(en, value); en = null; return;
+      }
+      if (key === "DROP") { drops.push(value.trim()); return; }
+      const [from, to] = value.split("->").map(s => s.trim());
+      if (!from || !to) return problem(`kr/${file} line ${i + 1}: ${key}: english -> korean`);
+      (key === "IMG" ? imgs : links).push([from, to]);
+    });
+  }
+  const pairs = [...byEn].sort((a, b) => b[0].length - a[0].length);   // 긴 글자 먼저(짧은 글자가 긴 글자 안을 바꾸지 않게)
+  const keepEnglish = pairs.filter(([e, k]) => e === k).map(([e]) => e);
+  return { pairs, links, drops, imgs, keepEnglish };
 }
 
 // 화면에 보이는(또는 검색·화면 읽기 프로그램이 읽는) 글자 중 영어가 남은 것.
-function leftoverEnglish(html) {
+function leftoverEnglish(html, keepEnglish = []) {
   const found = new Set();
+  for (const k of keepEnglish) html = html.split(`>${k}<`).join("><").split(`>${k.replace(/'/g, "&#39;")}<`).join("><");
   const body = html.replace(/<(script|style|svg|template)\b[\s\S]*?<\/\1>/g, " ");
   const texts = [
     ...body.replace(/<[^>]+>/g, "\n").split("\n"),
@@ -125,7 +133,8 @@ function koreanize(html, ctx) {
   html = html.replace("</head>", "<style>body { word-break: keep-all; overflow-wrap: anywhere; }</style>\n</head>");
   // 언어를 고르면 쿠키(mu_lang)에 남긴다 — matchup.fit 첫 화면의 '한국어 브라우저 → /kr' 이동이 이 쿠키가 있으면 건너뛴다
   html = html.replace("</head>", `<script>document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[data-lang]");if(a)document.cookie="mu_lang="+a.getAttribute("data-lang")+"; path=/; max-age=31536000; samesite=lax"});</script>\n</head>`);
-  html = html.replace(/((?:src|href)=")\/(assets\/|site\.js)/g, `$1${source}/$2`);     // 같은 디자인: 영어 사이트의 파일
+  for (const [from, to] of table.imgs || []) html = html.split(`src="${from}"`).join(`src="${to}"`);   // 한국 사이트 사진으로
+  html = html.replace(/((?:src|href)=")\/?(assets\/|site\.js)/g, `$1${source}/$2`);     // 같은 디자인: 영어 사이트의 파일
   // 매치업 앱·서버 주소: 이 빌드의 환경(스테이징이면 스테이징)으로, 앱은 한국어로 열리게
   for (const origin of new Set([...html.matchAll(/(https:\/\/[a-z0-9.-]+)\/(?:login\?from=fitting-room|welcome\?s=)/g)].map(m => m[1]))) {
     html = html.split(origin).join(matchupApp);
@@ -142,7 +151,8 @@ function koreanize(html, ctx) {
   // 글자: 태그 사이 글자와 속성 값만 바꾼다(주소·이름표는 건드리지 않는다)
   for (const [en, ko] of table.pairs) {
     for (const form of new Set([en, esc(en)])) {
-      html = html.replace(new RegExp(`(>\\s*|=")${reEsc(form)}(\\s*<|")`, "g"), (m, a, b) => `${a}${esc(ko)}${b}`);
+      html = html.replace(new RegExp(`(>\\s*|=")${reEsc(form)}(\\s*<|")`, "g"),
+        (m, a, b) => `${a}${a === '="' ? esc(ko.replace(/<br>/g, " ")) : esc(ko).replace(/&lt;br&gt;/g, "<br>")}${b}`);
     }
   }
   return html;
@@ -161,8 +171,8 @@ function setHead(html, { title, description, url, image, imageAlt, alternates },
   return html.replace("</head>", `<meta property="og:locale" content="ko_KR">\n${links}\n</head>`);
 }
 
-function check(html, where, problems) {
-  const left = leftoverEnglish(html);
+function check(html, where, problems, keepEnglish = []) {
+  const left = leftoverEnglish(html, keepEnglish);
   if (left.length) problems.push(`these English words on ${where} are not in kr/fitting-room.ko.txt (add an EN:/KO: pair for each):\n    ${left.join("\n    ")}`);
 }
 
@@ -207,7 +217,7 @@ function landingPage(en, list, ctx, problems) {
 <link rel="alternate" hreflang="en" href="${siteUrl}/fitting-room">
 <link rel="alternate" hreflang="x-default" href="${siteUrl}/fitting-room">
 </head>`);
-  check(html, `${ctx.source}/fitting-room`, problems);
+  check(html, `${ctx.source}/fitting-room`, problems, ctx.table.keepEnglish);
   const rows = Object.keys(GROUP_KO).filter(g => list.some(s => s.group === g))
     .map(g => row(GROUP_KO[g], list.filter(s => s.group === g), esc)).join("\n");
   return html.replace("{{KR_SHOE_ROWS}}", rows || `      <p class="shop-empty">신발을 준비하고 있어요.</p>`);
@@ -453,7 +463,7 @@ async function build({ shoes: enShoes, out, esc, siteUrl, matchupApp, matchupApi
       const frame = shoeFrame(en, ctx, problems);
       // 영어 검사는 틀에만(신발 이름·글은 어드민의 한국어라 영어 낱말이 섞여도 된다 — 예: 아디제로 에보 SL)
       check(setHead(koreanize(frame, { ...ctx, enUrl: "/fitting-room" }),
-        { title: "-", description: "-", url: "", image: "", imageAlt: "-", alternates: [] }, esc), `${u} (shoe page frame)`, problems);
+        { title: "-", description: "-", url: "", image: "", imageAlt: "-", alternates: [] }, esc), `${u} (shoe page frame)`, problems, ctx.table.keepEnglish);
       pagesByUrl.set(u, { frame, english: readEnglishShoe(en, u, source) });
     }
     return pagesByUrl.get(u);
@@ -462,16 +472,41 @@ async function build({ shoes: enShoes, out, esc, siteUrl, matchupApp, matchupApi
   for (const s of list) {
     const { frame, english } = await englishPage(s.source_slug ? `/fitting-room/${s.source_slug}` : firstShoe);
     const { html, buy, fill } = await shoePage(frame, s, list, ctx, s.source_slug ? english : null);
-    if (buy) check(buy.replace(/(<a class="shoe-buy-row"[^>]*>)[^<]*/g, "$1"), `${source}/fitting-room/${s.source_slug} (where to buy)`, problems);
+    if (buy) check(buy.replace(/(<a class="shoe-buy-row"[^>]*>)[^<]*/g, "$1"), `${source}/fitting-room/${s.source_slug} (where to buy)`, problems, ctx.table.keepEnglish);
     pages.push([s, Object.entries(fill).reduce((h, [k, v]) => h.replace(k, () => v), html)]);
+  }
+  // 그 밖의 한국어 페이지(영어 페이지 틀 + 공통 문구표 + 페이지 문구표) — 2026-11-18 작동 방식
+  const extra = [];
+  for (const p of EXTRA_PAGES) {
+    const t = readTable((x) => problems.push(x), ["fitting-room.ko.txt", p.table]);
+    let html = koreanize(await fetchText(`${source}${p.en}`), { ...ctx, table: t, enUrl: p.en });
+    html = html.replace(/(<link rel="canonical" href=")[^"]*"/, `$1${siteUrl}${p.kr}"`)
+      .replace(/(<meta property="og:url" content=")[^"]*"/, `$1${siteUrl}${p.kr}"`)
+      .replace(/<link rel="alternate" hreflang="[^"]*" href="[^"]*">\n?/g, "")
+      .replace("</head>", `<meta property="og:locale" content="ko_KR">
+<link rel="alternate" hreflang="ko" href="${siteUrl}${p.kr}">
+<link rel="alternate" hreflang="en" href="${siteUrl}${p.en}">
+<link rel="alternate" hreflang="x-default" href="${siteUrl}${p.en}">
+</head>`);
+    check(html, `${source}${p.en}`, problems, t.keepEnglish);
+    extra.push([p, html]);
   }
   if (problems.length) throw new Error("Korean site was NOT built:\n  " + [...new Set(problems)].join("\n  "));
 
   fs.writeFileSync(path.join(out, "kr.html"), landing);
   fs.mkdirSync(path.join(out, "kr"), { recursive: true });
   for (const [s, html] of pages) fs.writeFileSync(path.join(out, "kr", `${s.slug}.html`), html);
-  return ["/kr", ...list.map(s => `/kr/${s.slug}`)];
+  for (const [p, html] of extra) fs.writeFileSync(path.join(out, `${p.kr.slice(1)}.html`), html);
+  // 한국 사이트 사진(IMG: 줄이 가리키는 kr/img/*) → /kr/img/*
+  const imgDir = path.join(KR_DIR, "img");
+  if (fs.existsSync(imgDir)) fs.cpSync(imgDir, path.join(out, "kr", "img"), { recursive: true });
+  return ["/kr", ...extra.map(([p]) => p.kr), ...list.map(s => `/kr/${s.slug}`)];
 }
+
+// 피팅룸·신발 페이지 말고 한국어로 만드는 영어 페이지. 주소가 겹치지 않게 신발 주소(slug)로 쓰지 말 것.
+const EXTRA_PAGES = [
+  { en: "/how-it-works", kr: "/kr/how-it-works", table: "how-it-works.ko.txt" },
+];
 
 // ── 독립 실행(이 저장소 = 대표님 GitHub, Vercel 빌드 명령 `node build-kr.js`) ─────────────────
 // 환경 변수(Vercel 프로젝트 설정):
@@ -508,7 +543,7 @@ async function main() {
   fs.mkdirSync(path.join(out, "kr"), { recursive: true });
   fs.writeFileSync(path.join(out, "kr", "sitemap.xml"), noindex ? `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>\n` :
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `  <url><loc>${siteUrl}${u}</loc></url>`).join("\n")}\n</urlset>\n`);
-  console.log(`Korean Fitting Room (${urls.length - 1} shoes)${noindex ? " — NOINDEX (test copy)" : ""}:`);
+  console.log(`Korean Fitting Room (${urls.length} pages)${noindex ? " — NOINDEX (test copy)" : ""}:`);
   for (const u of urls) console.log(`  ${u}`);
 }
 
