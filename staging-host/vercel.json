@@ -23,12 +23,12 @@
       ],
       "destination": "/kr",
       "permanent": false
-    }
+    },
+    { "source": "/", "destination": "https://matchup.fit/", "permanent": false },
+    { "source": "/:path((?!kr$|kr/|robots\\.txt$).*)", "destination": "https://matchup.fit/:path", "permanent": false }
   ],
   "rewrites": [
     { "source": "/kr", "destination": "https://matchup-kr-staging.vercel.app/kr" },
-    { "source": "/kr/:path*", "destination": "https://matchup-kr-staging.vercel.app/kr/:path*" },
-    { "source": "/", "destination": "https://matchup.fit/" },
-    { "source": "/:path*", "destination": "https://matchup.fit/:path*" }
+    { "source": "/kr/:path*", "destination": "https://matchup-kr-staging.vercel.app/kr/:path*" }
   ]
 }
