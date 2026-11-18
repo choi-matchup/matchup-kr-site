@@ -43,6 +43,8 @@ const MONTHS = { Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8,
 // 영어로 남아도 되는 낱말(이름·고유명사). 이것 말고 영어 낱말이 보이면 표에 빠진 글자다.
 const ALLOWED_LATIN = /\b(MatchUp|Instagram|English|matchup|fit|KO)\b/g;
 const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+// 문구표가 바꾸는 속성(화면에 보이거나 검색·화면 읽기 프로그램이 읽는 것만)
+const TEXT_ATTRS = "(?:alt|aria-label|placeholder|title|content|value)";
 const read = (name) => fs.readFileSync(path.join(KR_DIR, name), "utf8");
 
 async function fetchText(url) {
@@ -117,7 +119,8 @@ function leftoverEnglish(html, keepEnglish = []) {
   ];
   for (const t of texts) {
     const s = t.replace(/&[a-z#0-9]+;/gi, " ").replace(/\{\{KR_[A-Z_]+\}\}/g, "").trim();
-    if (/[A-Za-z]{2,}/.test(s.replace(ALLOWED_LATIN, ""))) found.add(s);
+    // 한글이 들어 있으면 옮긴 글자다(Shopify·QR·Ultimate 같은 이름이 섞여도 된다). 한글 없이 영어만 남은 것만 잡는다.
+    if (!/[가-힣]/.test(s) && /[A-Za-z]{2,}/.test(s.replace(ALLOWED_LATIN, ""))) found.add(s);
   }
   return [...found];
 }
@@ -127,6 +130,7 @@ function leftoverEnglish(html, keepEnglish = []) {
 function koreanize(html, ctx) {
   const { source, table, esc, siteUrl, matchupApp, matchupApi, enUrl } = ctx;
   html = html.replace(/<!--[\s\S]*?-->\n?/g, "");                                    // 개발 메모(영어)
+  html = html.replace(/[ \t]*<template data-lang-bar[\s\S]*?<\/template>\n?/g, "");  // '한국어로 보기' 안내 줄(이미 한국어 페이지)
   html = html.replace('<html lang="en">', '<html lang="ko">');
   html = html.replace(/system-ui,sans-serif/g, KR_FONT);
   // 한국어는 낱말 중간에서 줄을 바꾸지 않게("크/게" 방지) — 영어 페이지 모양은 그대로
@@ -148,11 +152,11 @@ function koreanize(html, ctx) {
     .replace(/(<ul class="lang-list"[^>]*>)[\s\S]*?(<\/ul>)/g, `$1<li><a href="${enUrl}" lang="en" hreflang="en" data-lang="en">English</a></li><li><a href="/kr" lang="ko" hreflang="ko" data-lang="ko" aria-current="page">한국어</a></li><li><a href="/ja" lang="ja" hreflang="ja" data-lang="ja">日本語</a></li>$2`);
   html = html.replace(/(&middot;\s*)(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.? (\d{1,2})\b/g,
     (m, dot, mon, day) => `${dot}${MONTHS[mon]}월 ${day}일`);
-  // 글자: 태그 사이 글자와 속성 값만 바꾼다(주소·이름표는 건드리지 않는다)
+  // 글자: 태그 사이 글자와 화면·검색에 쓰이는 속성 값만 바꾼다(주소·이름표·data-* 는 건드리지 않는다)
   for (const [en, ko] of table.pairs) {
     for (const form of new Set([en, esc(en)])) {
-      html = html.replace(new RegExp(`(>\\s*|=")${reEsc(form)}(\\s*<|")`, "g"),
-        (m, a, b) => `${a}${a === '="' ? esc(ko.replace(/<br>/g, " ")) : esc(ko).replace(/&lt;br&gt;/g, "<br>")}${b}`);
+      html = html.replace(new RegExp(`(>\\s*|${TEXT_ATTRS}=")${reEsc(form)}(\\s*<|")`, "g"),
+        (m, a, b) => `${a}${a.endsWith('="') ? esc(ko.replace(/<br>/g, " ")) : esc(ko).replace(/&lt;br&gt;/g, "<br>")}${b}`);
     }
   }
   return html;
@@ -355,7 +359,7 @@ ${photos.map((p, i) => `          <button type="button" aria-label="${KO.showPho
 function translatePairs(html, table, esc) {
   for (const [en, ko] of table.pairs) {
     for (const form of new Set([en, esc(en)])) {
-      html = html.replace(new RegExp(`(>\\s*|=")${reEsc(form)}(\\s*<|")`, "g"), (m, a, b) => `${a}${esc(ko)}${b}`);
+      html = html.replace(new RegExp(`(>\\s*|${TEXT_ATTRS}=")${reEsc(form)}(\\s*<|")`, "g"), (m, a, b) => `${a}${esc(ko)}${b}`);
     }
   }
   return html;
@@ -478,8 +482,13 @@ async function build({ shoes: enShoes, out, esc, siteUrl, matchupApp, matchupApi
   // 그 밖의 한국어 페이지(영어 페이지 틀 + 공통 문구표 + 페이지 문구표) — 2026-11-18 작동 방식
   const extra = [];
   for (const p of EXTRA_PAGES) {
-    const t = readTable((x) => problems.push(x), ["fitting-room.ko.txt", p.table]);
-    let html = koreanize(await fetchText(`${source}${p.en}`), { ...ctx, table: t, enUrl: p.en });
+    const t = readTable((x) => problems.push(x), ["fitting-room.ko.txt", ...p.tables]);
+    let en = await fetchText(`${source}${p.en}`);
+    if (p.merge) {
+      en = mergeSections(en, await fetchText(`${source}${p.merge.from}`), p.merge);
+      if (!en) throw new Error(`Korean site: sections ${p.merge.sections.join(", ")} or "${p.merge.before}" not found on ${source}${p.merge.from} / ${p.en} — layout changed; build-kr.js needs a look`);
+    }
+    let html = koreanize(en, { ...ctx, table: t, enUrl: p.en });
     html = html.replace(/(<link rel="canonical" href=")[^"]*"/, `$1${siteUrl}${p.kr}"`)
       .replace(/(<meta property="og:url" content=")[^"]*"/, `$1${siteUrl}${p.kr}"`)
       .replace(/<link rel="alternate" hreflang="[^"]*" href="[^"]*">\n?/g, "")
@@ -504,9 +513,26 @@ async function build({ shoes: enShoes, out, esc, siteUrl, matchupApp, matchupApi
 }
 
 // 피팅룸·신발 페이지 말고 한국어로 만드는 영어 페이지. 주소가 겹치지 않게 신발 주소(slug)로 쓰지 말 것.
+// merge: 다른 영어 페이지의 단락(data-screen-label)을 가져와 before 단락 앞에 넣는다(그 페이지의 <style>도 함께).
 const EXTRA_PAGES = [
-  { en: "/how-it-works", kr: "/kr/how-it-works", table: "how-it-works.ko.txt" },
+  { en: "/how-it-works", kr: "/kr/how-it-works", tables: ["how-it-works.ko.txt", "home-sections.ko.txt"],
+    // 2026-11-18 오너: 옛 첫 페이지(/ko) 내용을 작동 방식과 합친다 — 첫 화면 큰 그림(Specimen hero)은 피팅룸과 겹쳐 뺌
+    merge: { from: "/", sections: ["Problem and outcome", "How setup works", "Available on"], before: "Navy band" } },
+  { en: "/pricing", kr: "/kr/pricing", tables: ["pricing.ko.txt"] },
+  { en: "/contact", kr: "/kr/contact", tables: ["contact.ko.txt"] },
 ];
+
+function mergeSections(html, other, merge) {
+  const sec = (h, label) => (h.match(new RegExp(`[ \\t]*<section[^>]*data-screen-label="${reEsc(label)}"[\\s\\S]*?</section>\\n?`)) || [])[0];
+  const add = merge.sections.map(l => sec(other, l)).filter(Boolean);
+  const at = html.search(new RegExp(`[ \\t]*<section[^>]*data-screen-label="${reEsc(merge.before)}"`));
+  if (add.length !== merge.sections.length || at < 0) return null;
+  const head = (h) => h.slice(0, h.indexOf("</head>"));
+  const mine = new Set([...head(html).matchAll(/<style[^>]*>[\s\S]*?<\/style>/g)].map(m => m[0]));
+  const styles = [...head(other).matchAll(/<style[^>]*>[\s\S]*?<\/style>/g)].map(m => m[0]).filter(s => !mine.has(s));
+  html = html.slice(0, at) + add.join("") + html.slice(at);
+  return html.replace("</head>", styles.join("\n") + "\n</head>");
+}
 
 // ── 독립 실행(이 저장소 = 대표님 GitHub, Vercel 빌드 명령 `node build-kr.js`) ─────────────────
 // 환경 변수(Vercel 프로젝트 설정):

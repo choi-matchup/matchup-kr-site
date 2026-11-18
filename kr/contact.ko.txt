@@ -1,0 +1,16 @@
+# 문의하기(/kr/contact) 문구표 — 영어 matchup.fit/contact의 틀. 처음 문구는 기존 /ko/contact 번역 그대로(2026-11-18).
+
+EN: Contact | MatchUp
+KO: 문의하기 | MatchUp
+EN: Questions about MatchUp for your store? Email contact@matchup.fit. We reply within a business day.
+KO: 쇼핑몰에 MatchUp을 도입하는 데 궁금한 점이 있으신가요? contact@matchup.fit으로 이메일을 보내주세요. 영업일 기준 1일 이내에 답변드립니다.
+EN: MatchUp fit visualizer showing US M 8, 9 and 10 on a snug-to-roomy scale
+KO: 265, 270, 275 사이즈의 착용감을 조임부터 여유까지 보여주는 MatchUp 착용감 카드
+EN: Let's chat!
+KO: 편하게 문의하세요
+EN: Tell us about your catalog and what you're trying to fix. We read every message and reply within a business day.
+KO: 판매 중인 상품과 해결하고 싶은 문제를 알려주세요. 모든 메시지를 읽고 영업일 기준 1일 이내에 답변드립니다.
+EN: Email
+KO: 이메일
+EN: contact@matchup.fit
+KO: contact@matchup.fit

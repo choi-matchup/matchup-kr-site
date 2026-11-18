@@ -42,8 +42,8 @@ DROP: Blog
 LINK: / -> /kr
 LINK: /fitting-room -> /kr
 LINK: /how-it-works -> /kr/how-it-works
-LINK: /pricing -> /ko/pricing
-LINK: /contact -> /ko/contact
+LINK: /pricing -> /kr/pricing
+LINK: /contact -> /kr/contact
 
 # ---- 첫 줄 ----
 EN: Try shoes on, without the shoes

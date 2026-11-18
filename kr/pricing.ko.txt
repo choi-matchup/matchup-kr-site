@@ -1,0 +1,87 @@
+# 가격 안내(/kr/pricing) 문구표 — 영어 matchup.fit/pricing의 틀. 처음 문구는 기존 /ko/pricing 번역 그대로(2026-11-18).
+# KO가 EN과 같은 줄(01 · Free 등)은 일부러 영어로 두는 글자.
+
+EN: Pricing | MatchUp Shoe Size Recommendation App | Free Plan
+KO: 가격 안내 | MatchUp 신발 사이즈 추천 앱 | 무료 플랜
+EN: Free for 1 product, $15 a month for up to 15 products, or $29 a month for up to 50 products. The same MatchUp plans on every store platform.
+KO: 상품 1개는 무료, 최대 15개 상품은 월 $15, 최대 50개 상품은 월 $29. 모든 쇼핑몰 플랫폼에서 같은 MatchUp 요금제를 이용할 수 있습니다.
+EN: MatchUp fit visualizer showing US M 8, 9 and 10 on a snug-to-roomy scale
+KO: 265, 270, 275 사이즈의 착용감을 조임부터 여유까지 보여주는 MatchUp 착용감 카드
+EN: Start free
+KO: 무료로 시작하고
+EN: Upgrade as your catalog grows
+KO: 상품이 늘어나면 업그레이드하세요
+EN: The same plans on every store platform. All charges are billed in USD every 30 days.
+KO: 모든 쇼핑몰 플랫폼에서 요금제는 같습니다. 모든 요금은 30일마다 미국 달러(USD)로 청구됩니다.
+EN: 01 · Free
+KO: 01 · Free
+EN: Free
+KO: 무료
+EN: 1 product
+KO: 상품 1개
+EN: Basic Analytics
+KO: 기본 분석
+EN: 02 · Plus
+KO: 02 · Plus
+EN: / month
+KO: / 월
+EN: Up to 15 products
+KO: 최대 15개 상품
+EN: Unlimited fit matching
+KO: 핏 매칭 무제한
+EN: Advanced Analytics
+KO: 고급 분석
+EN: 03 · Ultimate
+KO: 03 · Ultimate
+EN: Up to 50 products
+KO: 최대 50개 상품
+EN: Standalone QR snippet
+KO: 외부 사이트용 코드 및 QR 코드
+EN: Questions
+KO: 자주 묻는 질문
+EN: What counts as one product?
+KO: 상품 1개의 기준은 무엇인가요?
+EN: One product page with the MatchUp button. Colorways on the same product page count once. A colorway with its own product page counts as a separate product.
+KO: MatchUp 버튼이 있는 상품 페이지 하나가 상품 1개입니다. 같은 상품 페이지 안의 컬러는 1개로 계산합니다. 컬러별로 상품 페이지가 따로 있다면 각각 별도의 상품으로 계산합니다.
+EN: What is the standalone QR snippet?
+KO: 외부 사이트용 코드 및 QR 코드는 무엇인가요?
+EN: Available on the Ultimate plan. The standalone QR snippet is a piece of code that puts your MatchUp sizer on other websites, plus a QR code you can print for physical settings like an in-store display.
+KO: Ultimate 플랜에서 이용할 수 있습니다. MatchUp 사이즈 추천 기능을 다른 웹사이트에 넣을 수 있는 코드와, 매장 디스플레이처럼 오프라인에서 쓸 수 있도록 인쇄 가능한 QR 코드입니다.
+EN: What do I need to get set up?
+KO: 설정하려면 무엇이 필요한가요?
+EN: Your phone, your own feet, your shoes, and the size you wear in each shoe. No shoe specs or last data needed.
+KO: 휴대폰, 본인의 발, 판매하는 신발, 그리고 각 신발에서 본인이 신는 사이즈만 있으면 됩니다. 신발 스펙이나 라스트 데이터는 필요 없습니다.
+EN: Is there a free trial?
+KO: 무료 체험이 있나요?
+EN: No. The Free plan lets you try MatchUp on one product for as long as you want.
+KO: 아니요. Free 플랜으로 상품 1개에 MatchUp을 기간 제한 없이 사용해 볼 수 있습니다.
+EN: Let's chat!
+KO: 편하게 문의하세요
+EN: Need help setting up, or just have a question? Either is fine. No pitch waiting on the other end.
+KO: 설정에 도움이 필요하거나 궁금한 점이 있으신가요? 어느 쪽이든 괜찮습니다. 영업 연락은 드리지 않습니다.
+EN: What brings you here?
+KO: 문의 내용을 선택해 주세요
+EN: I need help setting up
+KO: 설정 도움이 필요합니다
+EN: I just have a question
+KO: 질문이 있습니다
+EN: Name
+KO: 이름
+EN: Brand (optional)
+KO: 브랜드(선택)
+EN: Email
+KO: 이메일
+EN: Message
+KO: 메시지
+EN: What's on your mind?
+KO: 궁금한 점을 적어 주세요
+EN: Send
+KO: 보내기
+EN: Thanks, got it. We'll be in touch shortly.
+KO: 문의가 접수되었습니다. 곧 연락드리겠습니다.
+EN: Or just email us at
+KO: 또는
+EN: contact@matchup.fit
+KO: contact@matchup.fit
+EN: . We read everything.
+KO: 으로 이메일을 보내주세요. 모든 메일을 읽습니다.
