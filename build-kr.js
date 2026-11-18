@@ -82,19 +82,21 @@ function draftShoes(dir, enLanding, source) {
    EN:/KO: 쌍(KO에 <br> = 줄바꿈, KO가 EN과 같으면 일부러 영어로 두는 글자), LINK: 주소 바꾸기,
    DROP: 그 글자의 링크 빼기, IMG: 영어 페이지 사진 → 한국 사이트 사진(kr/img/ 폴더). */
 function readTable(problem, files = ["fitting-room.ko.txt"]) {
-  const byEn = new Map(), links = [], drops = [], imgs = [], adds = [];
+  const byEn = new Map(), links = [], drops = [], imgs = [], adds = [], htmls = [];
   for (const file of files) {
     let en = null;
     read(file).split(/\r?\n/).forEach((line, i) => {
       if (!line.trim() || line.startsWith("#")) return;
-      const m = line.match(/^(EN|KO|LINK|DROP|IMG|ADD_AFTER):\s?(.*)$/);
-      if (!m) return problem(`kr/${file} line ${i + 1}: starts with EN:, KO:, LINK:, DROP:, IMG: or ADD_AFTER:`);
+      const m = line.match(/^(EN|KO|LINK|DROP|IMG|ADD_AFTER|HTML):\s?(.*)$/);
+      if (!m) return problem(`kr/${file} line ${i + 1}: starts with EN:, KO:, LINK:, DROP:, IMG:, ADD_AFTER: or HTML:`);
       const [, key, value] = m;
       if (key === "EN") { en = value; return; }
-      if (key === "ADD_AFTER") {   // ADD_AFTER: 영어 페이지의 이 글자 바로 뒤에 || 넣을 HTML(한국 페이지에만 있는 칸)
-        const [anchor, add] = value.split("||").map(s => s.trim());
-        if (!anchor || !add) return problem(`kr/${file} line ${i + 1}: ADD_AFTER: text on the page || html to add`);
-        adds.push([anchor, add]); return;
+      if (key === "ADD_AFTER" || key === "HTML") {
+        // ADD_AFTER: 영어 페이지의 이 글자 바로 뒤에 || 넣을 HTML(한국 페이지에만 있는 칸)
+        // HTML: 영어 페이지의 이 HTML을 || 이 HTML로(같은 글자가 두 번 나오는데 자리마다 다르게 써야 할 때)
+        const [a, b] = value.split("||").map(s => s.trim());
+        if (!a || !b) return problem(`kr/${file} line ${i + 1}: ${key}: text on the page || html`);
+        (key === "HTML" ? htmls : adds).push([a, b]); return;
       }
       if (key === "KO") {
         if (en === null) return problem(`kr/${file} line ${i + 1}: a KO: line needs an EN: line above it`);
@@ -108,7 +110,7 @@ function readTable(problem, files = ["fitting-room.ko.txt"]) {
   }
   const pairs = [...byEn].sort((a, b) => b[0].length - a[0].length);   // 긴 글자 먼저(짧은 글자가 긴 글자 안을 바꾸지 않게)
   const keepEnglish = pairs.filter(([e, k]) => e === k).map(([e]) => e);
-  return { pairs, links, drops, imgs, adds, keepEnglish };
+  return { pairs, links, drops, imgs, adds, htmls, keepEnglish };
 }
 
 // 화면에 보이는(또는 검색·화면 읽기 프로그램이 읽는) 글자 중 영어가 남은 것.
@@ -137,6 +139,10 @@ function koreanize(html, ctx) {
   const { source, table, esc, siteUrl, matchupApp, matchupApi, enUrl } = ctx;
   html = html.replace(/<!--[\s\S]*?-->\n?/g, "");                                    // 개발 메모(영어)
   html = html.replace(/[ \t]*<template data-lang-bar[\s\S]*?<\/template>\n?/g, "");  // '한국어로 보기' 안내 줄(이미 한국어 페이지)
+  for (const [from, to] of table.htmls || []) {
+    if (!html.includes(from)) throw new Error(`Korean site: HTML place "${from}" not found on ${enUrl} — the English page changed; fix the HTML: line`);
+    html = html.split(from).join(to);
+  }
   html = html.replace('<html lang="en">', '<html lang="ko">');
   html = html.replace(/system-ui,sans-serif/g, KR_FONT);
   // 한국어는 낱말 중간에서 줄을 바꾸지 않게("크/게" 방지) — 영어 페이지 모양은 그대로
@@ -498,7 +504,11 @@ async function build({ shoes: enShoes, out, esc, siteUrl, matchupApp, matchupApi
     let en = await fetchText(`${source}${p.en}`);
     if (p.merge) {
       en = mergeSections(en, await fetchText(`${source}${p.merge.from}`), p.merge);
-      if (!en) throw new Error(`Korean site: sections ${p.merge.sections.join(", ")} or "${p.merge.before}" not found on ${source}${p.merge.from} / ${p.en} — layout changed; build-kr.js needs a look`);
+      if (!en) throw new Error(`Korean site: sections ${p.merge.sections.join(", ")} or "${p.merge.before || p.merge.after}" not found on ${source}${p.merge.from} / ${p.en} — layout changed; build-kr.js needs a look`);
+    }
+    for (const label of p.drop || []) {
+      if (!sectionRe(label).test(en)) throw new Error(`Korean site: section "${label}" to drop not found on ${source}${p.en} — layout changed; build-kr.js needs a look`);
+      en = en.replace(sectionRe(label), "");
     }
     let html = koreanize(en, { ...ctx, table: t, enUrl: p.en });
     html = html.replace(/(<link rel="canonical" href=")[^"]*"/, `$1${siteUrl}${p.kr}"`)
@@ -525,19 +535,26 @@ async function build({ shoes: enShoes, out, esc, siteUrl, matchupApp, matchupApi
 }
 
 // 피팅룸·신발 페이지 말고 한국어로 만드는 영어 페이지. 주소가 겹치지 않게 신발 주소(slug)로 쓰지 말 것.
-// merge: 다른 영어 페이지의 단락(data-screen-label)을 가져와 before 단락 앞에 넣는다(그 페이지의 <style>도 함께).
+// merge: 다른 영어 페이지의 단락(data-screen-label)을 가져와 before 단락 앞(또는 after 단락 뒤)에 넣는다(그 페이지의 <style>도 함께).
+// drop: 이 페이지에서 뺄 단락.
 const EXTRA_PAGES = [
   { en: "/how-it-works", kr: "/kr/how-it-works", tables: ["how-it-works.ko.txt", "home-sections.ko.txt"],
     // 2026-11-18 오너: 옛 첫 페이지(/ko) 내용을 작동 방식과 합친다 — 첫 화면 큰 그림(Specimen hero)은 피팅룸과 겹쳐 뺌
     merge: { from: "/", sections: ["Problem and outcome", "How setup works", "Available on"], before: "Navy band" } },
-  { en: "/pricing", kr: "/kr/pricing", tables: ["pricing.ko.txt"] },
-  { en: "/contact", kr: "/kr/contact", tables: ["contact.ko.txt"] },
+  // 2026-11-18 오너: 가격 안내 아래 문의 양식(CTA band)은 문의하기로 옮긴다
+  { en: "/pricing", kr: "/kr/pricing", tables: ["pricing.ko.txt"], drop: ["CTA band"] },
+  { en: "/contact", kr: "/kr/contact", tables: ["pricing.ko.txt", "contact.ko.txt"],
+    merge: { from: "/pricing", sections: ["CTA band"], after: "Contact" } },
 ];
 
+const sectionRe = (label) => new RegExp(`[ \\t]*<section[^>]*data-screen-label="${reEsc(label)}"[\\s\\S]*?</section>\\n?`);
+
 function mergeSections(html, other, merge) {
-  const sec = (h, label) => (h.match(new RegExp(`[ \\t]*<section[^>]*data-screen-label="${reEsc(label)}"[\\s\\S]*?</section>\\n?`)) || [])[0];
+  const sec = (h, label) => (h.match(sectionRe(label)) || [])[0];
   const add = merge.sections.map(l => sec(other, l)).filter(Boolean);
-  const at = html.search(new RegExp(`[ \\t]*<section[^>]*data-screen-label="${reEsc(merge.before)}"`));
+  let at = -1;
+  if (merge.before) at = html.search(new RegExp(`[ \\t]*<section[^>]*data-screen-label="${reEsc(merge.before)}"`));
+  else { const m = html.match(sectionRe(merge.after)); if (m) at = m.index + m[0].length; }
   if (add.length !== merge.sections.length || at < 0) return null;
   const head = (h) => h.slice(0, h.indexOf("</head>"));
   const mine = new Set([...head(html).matchAll(/<style[^>]*>[\s\S]*?<\/style>/g)].map(m => m[0]));
