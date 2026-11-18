@@ -34,9 +34,9 @@ EN: Top-down view of the foot lined up inside the on-screen capture frame
 KO: 화면의 촬영 틀 안에 발을 맞춘 모습을 위에서 본 장면
 EN: 03 · With all four corners of the paper inside the frame, photograph from above
 KO: 03 · 종이의 네 모서리가 모두 화면 틀 안에 들어오게 하고 위에서 사진을 찍으세요
-# 02·03 사진(오너 요청 11/18 — 사진 파일을 받으면 kr/img/에 두고 아래 두 줄의 #을 지운다)
-# IMG: assets/img/right_foot.png -> /kr/img/how-step-02.png
-# IMG: assets/img/frame.png -> /kr/img/how-step-03.png
+# 02·03 사진: 오너가 준 사진(11/18)
+IMG: assets/img/right_foot.png -> /kr/img/how-step-02.jpg
+IMG: assets/img/frame.png -> /kr/img/how-step-03.jpg
 
 # ---- 사진을 찍은 다음 ----
 EN: Scan · Measure · Match · Recommend
