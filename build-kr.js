@@ -585,6 +585,24 @@ async function main() {
     matchupApp: env("MATCHUP_APP", "https://dev.matchup.fit"),
     matchupApi: env("MATCHUP_API", "https://api.matchup.fit"),
   });
+  // 없는 /kr/<주소>(한국에서 뺀 신발, 아직 한국에 없는 새 영어 신발 등) — Vercel이 404 상태로 이 페이지를 보여준다.
+  // 손님은 곧바로 한국 피팅룸(/kr)으로, 검색엔진에는 '없는 페이지'(404·noindex)로(2026-11-19, 미국 관리자 질문 3).
+  fs.writeFileSync(path.join(out, "404.html"), `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="0; url=/kr">
+<title>피팅룸 | 매치업</title>
+<script>location.replace("/kr");</script>
+<style>body{margin:0;font-family:system-ui,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;color:#334155;display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center}a{color:#346B86}</style>
+</head>
+<body>
+<p>찾으시는 신발은 아직 한국 피팅룸에 없어요.<br><a href="/kr">피팅룸으로 가기</a></p>
+</body>
+</html>
+`);
   const noindex = process.env.NOINDEX === "1";
   const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap(e =>
     e.isDirectory() ? walk(path.join(dir, e.name)) : e.name.endsWith(".html") ? [path.join(dir, e.name)] : []);
