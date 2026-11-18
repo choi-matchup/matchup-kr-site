@@ -12,7 +12,7 @@ KO: 모든 신발은 각자의 라스트로 만들어지고, 소재와 디자인
 EN: MatchUp scans the shopper's feet with a phone and shows how each size will feel. The shopper picks the size that feels right for them.
 KO: MatchUp은 휴대폰으로 구매자의 발을 스캔하고 사이즈별 착용감을 보여줍니다. 구매자는 자신에게 맞는 사이즈를 직접 고릅니다.
 EN: How setup works
-KO: 쉬운 설치
+KO: 매우 쉬운 설치와 간단한 작동법
 EN: Setup is simple. We only need two things from you: a photo of your shoe and a scan of your feet. Then try the shoe on and tell us which size feels the way you want your customer to feel. We use that to work out the shoe's last and the details that matter for fit, and compare them with each shopper's feet.
 KO: 설정은 간단합니다. 필요한 것은 신발 사진과 본인의 발 스캔, 두 가지뿐입니다. 그다음 신발을 신어 보고, 고객이 느끼길 바라는 착용감에 맞는 사이즈를 알려주세요. MatchUp은 이 정보로 신발의 라스트와 착용감에 중요한 치수를 계산하고, 각 구매자의 발과 비교합니다.
 EN: That way, the size your shoppers are encouraged to buy is the size that feels the way you meant it to.
@@ -20,7 +20,7 @@ KO: 그래서 구매자에게 추천되는 사이즈는 브랜드가 의도한 �
 EN: A pair of white canvas high-top sneakers with the shoe lasts still inside
 KO: 라스트가 그대로 들어 있는 흰색 캔버스 하이탑 스니커즈 한 켤레
 EN: Yes, we know a thing or two about shoemaking.
-KO: 우리는 신발도 많이 만들어 봤습니다.
+KO: 우리는 신발의 제작과 판매에 관한 경험도 많습니다.
 EN: Available on
 KO: 이용 가능 플랫폼
 EN: Available on the Shopify App Store
