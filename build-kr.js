@@ -82,15 +82,20 @@ function draftShoes(dir, enLanding, source) {
    EN:/KO: 쌍(KO에 <br> = 줄바꿈, KO가 EN과 같으면 일부러 영어로 두는 글자), LINK: 주소 바꾸기,
    DROP: 그 글자의 링크 빼기, IMG: 영어 페이지 사진 → 한국 사이트 사진(kr/img/ 폴더). */
 function readTable(problem, files = ["fitting-room.ko.txt"]) {
-  const byEn = new Map(), links = [], drops = [], imgs = [];
+  const byEn = new Map(), links = [], drops = [], imgs = [], adds = [];
   for (const file of files) {
     let en = null;
     read(file).split(/\r?\n/).forEach((line, i) => {
       if (!line.trim() || line.startsWith("#")) return;
-      const m = line.match(/^(EN|KO|LINK|DROP|IMG):\s?(.*)$/);
-      if (!m) return problem(`kr/${file} line ${i + 1}: starts with EN:, KO:, LINK:, DROP: or IMG:`);
+      const m = line.match(/^(EN|KO|LINK|DROP|IMG|ADD_AFTER):\s?(.*)$/);
+      if (!m) return problem(`kr/${file} line ${i + 1}: starts with EN:, KO:, LINK:, DROP:, IMG: or ADD_AFTER:`);
       const [, key, value] = m;
       if (key === "EN") { en = value; return; }
+      if (key === "ADD_AFTER") {   // ADD_AFTER: 영어 페이지의 이 글자 바로 뒤에 || 넣을 HTML(한국 페이지에만 있는 칸)
+        const [anchor, add] = value.split("||").map(s => s.trim());
+        if (!anchor || !add) return problem(`kr/${file} line ${i + 1}: ADD_AFTER: text on the page || html to add`);
+        adds.push([anchor, add]); return;
+      }
       if (key === "KO") {
         if (en === null) return problem(`kr/${file} line ${i + 1}: a KO: line needs an EN: line above it`);
         byEn.set(en, value); en = null; return;
@@ -103,13 +108,14 @@ function readTable(problem, files = ["fitting-room.ko.txt"]) {
   }
   const pairs = [...byEn].sort((a, b) => b[0].length - a[0].length);   // 긴 글자 먼저(짧은 글자가 긴 글자 안을 바꾸지 않게)
   const keepEnglish = pairs.filter(([e, k]) => e === k).map(([e]) => e);
-  return { pairs, links, drops, imgs, keepEnglish };
+  return { pairs, links, drops, imgs, adds, keepEnglish };
 }
 
 // 화면에 보이는(또는 검색·화면 읽기 프로그램이 읽는) 글자 중 영어가 남은 것.
 function leftoverEnglish(html, keepEnglish = []) {
   const found = new Set();
   for (const k of keepEnglish) html = html.split(`>${k}<`).join("><").split(`>${k.replace(/'/g, "&#39;")}<`).join("><");
+  html = html.replace(/<div data-kr-added>[\s\S]*?<\/div><!--\/kr-added-->/g, " ");   // 한국 페이지에만 더한 칸(오너가 쓴 글 — 주소 등)
   const body = html.replace(/<(script|style|svg|template)\b[\s\S]*?<\/\1>/g, " ");
   const texts = [
     ...body.replace(/<[^>]+>/g, "\n").split("\n"),
@@ -158,6 +164,12 @@ function koreanize(html, ctx) {
       html = html.replace(new RegExp(`(>\\s*|${TEXT_ATTRS}=")${reEsc(form)}(\\s*<|")`, "g"),
         (m, a, b) => `${a}${a.endsWith('="') ? esc(ko.replace(/<br>/g, " ")) : esc(ko).replace(/&lt;br&gt;/g, "<br>")}${b}`);
     }
+  }
+  // 한국 페이지에만 있는 칸(ADD_AFTER:) — 영어 페이지에서 자리 글자를 못 찾으면 빌드를 멈춘다(칸이 조용히 사라지지 않게)
+  for (const [anchor, add] of table.adds || []) {
+    const at = html.indexOf(anchor);
+    if (at < 0) throw new Error(`Korean site: ADD_AFTER place "${anchor}" not found on ${enUrl} — the English page changed; fix the ADD_AFTER line`);
+    html = html.slice(0, at + anchor.length) + `<div data-kr-added>${add}</div><!--/kr-added-->` + html.slice(at + anchor.length);
   }
   return html;
 }

@@ -14,3 +14,7 @@ EN: Email
 KO: 이메일
 EN: contact@matchup.fit
 KO: contact@matchup.fit
+
+# ---- 한국 페이지에만 있는 칸(2026-11-18 오너) — 이메일 아래 주소 ----
+# ADD_AFTER: 영어 페이지의 이 글자 바로 뒤에 || 넣을 HTML (이메일 칸과 같은 글자 모양)
+ADD_AFTER: contact@matchup.fit</a></p> || <p style="margin:1.5rem 0 0.5rem; font-size:0.75rem; font-weight:500; color:#94A3B8">주소</p><p style="margin:0; font-size:1rem; line-height:1.6; color:#334155">한국 - 경기도 파주시 관인사길 68 2F 출판산업단지<br>U.S.A - 447 Broadway 2nd Floor #1544 New York, NY 10013</p>
