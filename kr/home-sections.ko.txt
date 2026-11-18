@@ -6,7 +6,7 @@ KO: 같은 사이즈의 라스트 두 개. 왼쪽 라스트는 앞발 부분이 
 EN: Two lasts, same size. The left has way more forefoot volume than the right.
 KO: 같은 사이즈의 라스트(신발 틀) 두 개. 왼쪽 라스트가 오른쪽보다 앞발 부분의 볼륨이 훨씬 큽니다.
 EN: A size label doesn't measure fit
-KO: 사이즈 표기로는 착용감을 알 수 없습니다
+KO: 사이즈 표기만으로는 착용감을 알 수 없습니다.
 EN: Every shoe is built on its own last, and materials and design choices change the fit too. So the same size can feel very different from brand to brand, or even model to model. Shoppers can't tell from the label, so they exchange or return the shoes (or worse, don't buy at all).
 KO: 모든 신발은 각자의 라스트로 만들어지고, 소재와 디자인에 따라서도 착용감이 달라집니다. 그래서 같은 사이즈라도 브랜드마다, 심지어 모델마다 착용감이 크게 다를 수 있습니다. 고객은 사이즈 표기만 보고는 알 수 없어서 교환이나 반품을 하게 됩니다(더 나쁜 경우에는 아예 구매하지 않습니다).
 EN: MatchUp scans the shopper's feet with a phone and shows how each size will feel. The shopper picks the size that feels right for them.
