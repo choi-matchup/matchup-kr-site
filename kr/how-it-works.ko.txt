@@ -34,9 +34,7 @@ EN: Top-down view of the foot lined up inside the on-screen capture frame
 KO: 화면의 촬영 틀 안에 발을 맞춘 모습을 위에서 본 장면
 EN: 03 · With all four corners of the paper inside the frame, photograph from above
 KO: 03 · 종이의 네 모서리가 모두 화면 틀 안에 들어오게 하고 위에서 사진을 찍으세요
-# 02·03 사진: 오너가 준 사진(11/18)
-IMG: assets/img/right_foot.png -> /kr/img/how-step-02.jpg
-IMG: assets/img/frame.png -> /kr/img/how-step-03.jpg
+# 02·03 사진: 11/19부터 영어 페이지가 오너의 같은 사진(paper.jpg·right_foot.jpg·right_foot_above.jpg)을 쓴다 — 따라간다.
 
 # ---- 사진을 찍은 다음 ----
 EN: Scan · Measure · Match · Recommend
@@ -81,13 +79,7 @@ KO: 귀사 상품에 사이즈 추천을 직접 적용해 보세요.
 EN: Try it for free on your store
 KO: 내 쇼핑몰에서 무료로 사용해 보기
 
-# ---- 휴대폰에서 '조임 → 여유' 막대를 발 그림 밑으로(2026-11-18 오너) ----
-# 영어 페이지는 막대가 글 칸 끝에 있어 화면이 좁아 위아래로 쌓이면 그림 위에 나온다.
-# 넓은 화면: 원래 자리(글 밑). 좁은 화면(680px 이하 — 두 칸이 한 칸으로 쌓이는 폭): 그림 밑의 같은 막대를 보인다.
-HTML: <div style="display:flex; height:6px; width:100%; max-width:20rem"> || <div class="kr-scale-desk" style="display:flex; height:6px; width:100%; max-width:20rem">
-HTML: <p style="margin:0.5rem 0 0; font-family:'Inter',-apple-system,system-ui,sans-serif; font-size:0.75rem; font-weight:500; color:#94A3B8">Snug → roomy</p> || <p class="kr-scale-desk" style="margin:0.5rem 0 0; font-family:'Inter',-apple-system,system-ui,sans-serif; font-size:0.75rem; font-weight:500; color:#94A3B8">Snug → roomy</p>
-HTML: style="display:block; width:100%; max-width:min(22rem, 70vw); margin:0 auto; height:auto"> || style="display:block; width:100%; max-width:min(22rem, 70vw); margin:0 auto; height:auto"><div class="kr-scale-mob"><div style="display:flex; height:6px; width:100%"><div style="flex:1; background:#D94343"></div><div style="flex:1; background:#F09090"></div><div style="flex:1; background:#97B68A"></div><div style="flex:1; background:#83B6CF"></div><div style="flex:1; background:#2B5F6D"></div></div><p style="margin:0.5rem 0 0; font-size:0.75rem; font-weight:500; color:#94A3B8">조임 → 여유</p></div>
-HTML: </head> || <style>.kr-scale-mob { display:none; } @media (max-width: 680px) { .kr-scale-desk { display:none !important; } .kr-scale-mob { display:block; max-width:min(22rem, 70vw); margin:1rem auto 0; } }</style></head>
+# (11/18의 '조임 → 여유' 막대 휴대폰 위치 규칙은 11/19 영어 페이지에서 막대가 없어져 지웠다)
 
 # ---- '추천 사이즈와 착용감'과 '사이즈 표기만으로는…' 사이 구분선(2026-11-18 오너 — 내용이 이어져 보이지 않게) ----
 HTML: <section data-screen-label="Problem and outcome" style="padding:clamp(3.5rem,9vw,7rem) clamp(1.25rem,4vw,2.5rem)"> || <div style="max-width:1120px; margin:0 auto; padding:0 clamp(1.25rem,4vw,2.5rem)"><hr style="border:0; border-top:1px solid #E2E8F0; margin:0"></div><section data-screen-label="Problem and outcome" style="padding:clamp(3.5rem,9vw,7rem) clamp(1.25rem,4vw,2.5rem)">

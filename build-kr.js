@@ -41,7 +41,7 @@ const KO = {
 const KR_FONT = "system-ui,'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR',sans-serif";   // /ko 페이지와 같은 글꼴 순서
 const MONTHS = { Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12 };
 // 영어로 남아도 되는 낱말(이름·고유명사). 이것 말고 영어 낱말이 보이면 표에 빠진 글자다.
-const ALLOWED_LATIN = /\b(MatchUp|Instagram|English|matchup|fit|KO)\b/g;
+const ALLOWED_LATIN = /\b(MatchUp|Instagram|English|matchup|fit|KO|KR)\b/g;   // KR = 언어 버튼 표시(11/19 오너)
 const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // 문구표가 바꾸는 속성(화면에 보이거나 검색·화면 읽기 프로그램이 읽는 것만)
 const TEXT_ATTRS = "(?:alt|aria-label|placeholder|title|content|value)";
@@ -160,7 +160,7 @@ function koreanize(html, ctx) {
   for (const label of table.drops) html = html.replace(new RegExp(`[ \\t]*<a\\b[^>]*>\\s*${reEsc(label)}\\s*</a>\\n?`, "g"), "");
   for (const [from, to] of table.links) html = html.split(`href="${from}"`).join(`href="${to}"`);
   // 언어 선택: 한국어 = 이 페이지, English = 같은 영어 페이지(없으면 영어 피팅룸)
-  html = html.replace(/(<button type="button" class="lang-btn"[^>]*aria-label=")Language(">)EN/g, "$1언어$2KO")
+  html = html.replace(/(<button type="button" class="lang-btn"[^>]*aria-label=")Language(">)EN/g, "$1언어$2KR")
     .replace(/(<ul class="lang-list"[^>]*>)[\s\S]*?(<\/ul>)/g, `$1<li><a href="${enUrl}" lang="en" hreflang="en" data-lang="en">English</a></li><li><a href="/kr" lang="ko" hreflang="ko" data-lang="ko" aria-current="page">한국어</a></li><li><a href="/ja" lang="ja" hreflang="ja" data-lang="ja">日本語</a></li>$2`);
   html = html.replace(/(&middot;\s*)(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.? (\d{1,2})\b/g,
     (m, dot, mon, day) => `${dot}${MONTHS[mon]}월 ${day}일`);
@@ -542,9 +542,9 @@ const EXTRA_PAGES = [
     // 2026-11-18 오너: 옛 첫 페이지(/ko) 내용을 작동 방식과 합친다 — 첫 화면 큰 그림(Specimen hero)은 피팅룸과 겹쳐 뺌
     merge: { from: "/", sections: ["Problem and outcome", "How setup works", "Available on"], before: "Navy band" } },
   // 2026-11-18 오너: 가격 안내 아래 문의 양식(CTA band)은 문의하기로 옮긴다
-  { en: "/pricing", kr: "/kr/pricing", tables: ["pricing.ko.txt"], drop: ["CTA band"] },
-  { en: "/contact", kr: "/kr/contact", tables: ["pricing.ko.txt", "contact.ko.txt"],
-    merge: { from: "/pricing", sections: ["CTA band"], after: "Contact" } },
+  // 2026-11-19: 미국 쪽도 문의 양식(CTA band)을 /pricing에서 /contact로 옮겨서 옮기기 규칙이 필요 없어졌다(영어 그대로 따라감).
+  { en: "/pricing", kr: "/kr/pricing", tables: ["pricing.ko.txt"] },
+  { en: "/contact", kr: "/kr/contact", tables: ["pricing.ko.txt", "contact.ko.txt"] },
 ];
 
 const sectionRe = (label) => new RegExp(`[ \\t]*<section[^>]*data-screen-label="${reEsc(label)}"[\\s\\S]*?</section>\\n?`);
