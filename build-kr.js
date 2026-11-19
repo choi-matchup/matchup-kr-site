@@ -307,8 +307,10 @@ function buyRows(s, esc, api) {
     return `          <a class="shoe-buy-row" href="${esc(o.url)}" target="_blank" rel="sponsored noopener noreferrer" data-kr-offer="${esc(o.retailer)}" style="padding-top:8px; padding-bottom:8px"><span style="display:flex; flex-direction:column; gap:2px; font-size:14px; font-weight:500; color:#0F172A">${esc(o.store)}<small style="font-size:12px; font-weight:400; line-height:1.4; color:#64748B">${esc(pol)}</small></span> <span style="flex:none">보러 가기 ↗</span></a>`;
   }).join("\n");
   const notes = [...new Set(offers.map(o => o.disclosure).filter(Boolean))];
-  // 클릭 기록(sendBeacon — 링크 이동을 막지 않는다)
-  const beacon = `<script>document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[data-kr-offer]");if(!a||!navigator.sendBeacon)return;try{navigator.sendBeacon(${JSON.stringify(api + "/api/v1/public/b2c/offer-click/kr")},new Blob([JSON.stringify({product:${JSON.stringify(s.code)},retailer:a.getAttribute("data-kr-offer")})],{type:"text/plain"}))}catch(_){}});</script>`;
+  // 클릭 기록(sendBeacon — 링크 이동을 막지 않는다).
+  // 아이폰 크롬(CriOS)은 같은 창으로(2026-11-19 오너 실기): 쿠팡 링크는 먼저 앱을 열려 하고, 새 탭에서 '허용 안함'을 누르면
+  // 크롬이 탭을 닫아 이 페이지로 돌아와 버린다. 같은 창이면 쿠팡 웹 상품 페이지로 넘어간다.
+  const beacon = `<script>if(/CriOS/.test(navigator.userAgent))document.querySelectorAll("a[data-kr-offer]").forEach(function(a){a.target="_top"});document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[data-kr-offer]");if(!a||!navigator.sendBeacon)return;try{navigator.sendBeacon(${JSON.stringify(api + "/api/v1/public/b2c/offer-click/kr")},new Blob([JSON.stringify({product:${JSON.stringify(s.code)},retailer:a.getAttribute("data-kr-offer")})],{type:"text/plain"}))}catch(_){}});</script>`;
   return `<p class="shoe-buy-label">여기서 살 수 있어요</p>
         <div class="shoe-buy">
 ${rows}
