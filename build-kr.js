@@ -17,6 +17,7 @@ const path = require("path");
 
 const KR_DIR = path.join(__dirname, "kr");
 const SHOP_ID = "fittingroom.matchup.fit";
+const BUILD_STAMP = Date.now().toString(36);   // 위젯 주소 캐시 깨기용(koreanize)
 // 어드민 카테고리(영어 이름, 서버 fitting_room_fit.CATEGORIES) → 한국 사이트 분류 이름과 순서
 // 분류 이름은 영어 그대로(2026-11-18 오너). 순서는 이 표 순서.
 const GROUP_KO = { "Running": "Running", "Sneakers": "Sneakers", "Boots": "Boots", "Leather shoes": "Leather shoes", "": "More" };
@@ -156,7 +157,10 @@ function koreanize(html, ctx) {
     html = html.split(origin).join(matchupApp);
   }
   html = html.replace(/https:\/\/api\.matchup\.fit(?=\/api\/)/g, matchupApi)
-    .replace(/(\/login\?from=fitting-room)"/g, "$1&amp;lang=ko\"");
+    .replace(/(\/login\?from=fitting-room)"/g, "$1&amp;lang=ko\"")
+    // 위젯 주소의 ?v=는 영어 사이트 빌드 값이라, 서버 위젯이 바뀌어도 Cloudflare가 하루 동안 옛 파일을 줄 수 있다
+    // (2026-11-19 나라 전달 위젯). 한국 빌드마다 새 값으로 — 한국 페이지는 빌드 때의 서버 위젯을 받는다.
+    .replace(/(\/fitting-room\/widget\.js)\?v=[\w-]+/g, `$1?v=kr${BUILD_STAMP}`);
   for (const label of table.drops) html = html.replace(new RegExp(`[ \\t]*<a\\b[^>]*>\\s*${reEsc(label)}\\s*</a>\\n?`, "g"), "");
   for (const [from, to] of table.links) html = html.split(`href="${from}"`).join(`href="${to}"`);
   // 언어 선택: 한국어 = 이 페이지, English = 같은 영어 페이지(없으면 영어 피팅룸)
