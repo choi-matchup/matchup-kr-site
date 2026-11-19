@@ -285,21 +285,22 @@ function readEnglishShoe(en, url, source) {
 // 서버의 한국 구매처(b2c/affiliate.py, 어드민 '나라별 사이트' → 편집 → 구매처)로 같은 모양의 줄을 만든다.
 // 가격은 넣지 않는다(빌드 시점 가격은 금방 낡는다 — 가격은 앱 매칭 결과에서 실시간으로).
 // 한국 구매처가 없는 신발은 구매처 줄 자체를 빼고, 제휴 표시 문구는 판매처가 요구하는 문장 그대로.
-const SHIP_KO = { rocket: "로켓배송", free: "무료배송", paid: "배송비 있음" };
+// 배송·반품은 '판매자마다 다름'이어도 그대로 쓴다(2026-11-19 오너) — 문장은 앱 결과 화면(matchup-app
+// i18n quickReport.offerShip*·offerReturns*)과 같게.
+const SHIP_KO = { rocket: "로켓배송", free: "무료배송", paid: "배송비 있음", varies: "배송비는 판매자마다 다름" };
 function policyKo(p) {
-  const bits = [];
-  if (SHIP_KO[p.shipping]) bits.push(SHIP_KO[p.shipping]);
-  if (p.returns === "free") bits.push(p.return_days ? `${p.return_days}일 무료반품` : "무료반품");
-  else if (p.return_days) bits.push(`반품 ${p.return_days}일`);
-  else if (p.returns === "paid") bits.push("반품비 있음");
-  return bits.join(" · ");
+  const ship = SHIP_KO[p.shipping] || SHIP_KO.varies;
+  const ret = p.returns === "free" ? (p.return_days ? `${p.return_days}일 무료반품` : "무료반품")
+    : p.returns === "paid" ? (p.return_days ? `${p.return_days}일 이내 반품(반품비 있음)` : "반품비 있음")
+    : "반품 조건은 판매자마다 다름";
+  return `${ship} · ${ret}`;
 }
 function buyRows(s, esc, api) {
   const offers = (s.offers || []).filter(o => o.url);
   if (!offers.length) return "";
   const rows = offers.map(o => {
     const pol = policyKo(o.policy || {});
-    return `          <a class="shoe-buy-row" href="${esc(o.url)}" target="_blank" rel="sponsored noopener noreferrer" data-kr-offer="${esc(o.retailer)}">${esc(o.store)}${pol ? ` <small style="font-weight:400; color:#64748B">· ${esc(pol)}</small>` : ""} <span>보러 가기 ↗</span></a>`;
+    return `          <a class="shoe-buy-row" href="${esc(o.url)}" target="_blank" rel="sponsored noopener noreferrer" data-kr-offer="${esc(o.retailer)}" style="padding-top:8px; padding-bottom:8px"><span style="display:flex; flex-direction:column; gap:2px; font-size:14px; font-weight:500; color:#0F172A">${esc(o.store)}<small style="font-size:12px; font-weight:400; line-height:1.4; color:#64748B">${esc(pol)}</small></span> <span style="flex:none">보러 가기 ↗</span></a>`;
   }).join("\n");
   const notes = [...new Set(offers.map(o => o.disclosure).filter(Boolean))];
   // 클릭 기록(sendBeacon — 링크 이동을 막지 않는다)
