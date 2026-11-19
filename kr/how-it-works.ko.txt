@@ -23,7 +23,9 @@ KO: 휴대폰과 종이 한 장, 나머지는 MatchUp이 알아서 합니다.
 EN: A sheet of paper is the only reference the scan needs, because its known size calibrates the measurement. Place it, step on it, photograph from above.
 KO: 스캔에 필요한 기준은 종이 한 장뿐입니다. 종이의 크기가 정해져 있어서 측정 기준이 됩니다. 종이를 놓고, 위에 올라서서, 위에서 사진을 찍으세요.
 EN: A sheet of printer paper laid flat on the floor
-KO: 바닥에 평평하게 놓인 프린터 용지 한 장
+KO: 벽에 붙여 바닥에 놓은 종이 한 장
+# 01 사진: 2026-11-19 오너 사진(벽에 붙여 놓는 모습)으로 바꿈
+IMG: assets/img/paper.jpg -> /kr/img/how-step-01.jpg
 EN: 01 · Place the paper on the floor
 KO: 01 · 바닥에 종이를 놓으세요
 EN: A sock-clad foot standing on the sheet of paper
