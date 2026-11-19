@@ -424,7 +424,7 @@ async function shoePage(frame, s, list, ctx, english) {
   const firstPara = (s.body.split(/\n\s*\n/).map(p => p.trim()).find(p => p && !/^(\[|#|- )/.test(p)) || "")
     .replace(/\*+/g, "").replace(/\s+/g, " ");
   const description = s.summary || (firstPara.length > 120 ? firstPara.slice(0, 118) + "…" : firstPara) || KO.description(s.brand, s.name);
-  const findUrl = `${matchupApp}/welcome?s=${SHOP_ID}&p=${encodeURIComponent(s.code)}&src=seller_qr&lang=ko`;
+  const findUrl = `${matchupApp}/welcome?s=${SHOP_ID}&p=${encodeURIComponent(s.code)}&src=seller_qr&lang=ko&country=kr`;
   const qrSvg = await require("qrcode").toString(findUrl, { type: "svg", margin: 2, color: { dark: "#000000", light: "#ffffff" } });
   const buy = buyRows(s, esc, ctx.matchupApi);   // 영어 페이지의 Amazon·Zappos 줄은 쓰지 않는다(2026-11-19)
 
@@ -439,7 +439,7 @@ ${gallery(s, photos, esc)}
     <div class="shoe-info">
       <div class="shoe-info-in">
         <h1 class="shoe-name"><span class="shoe-brand">${esc(s.brand)}</span> ${esc(s.name)}</h1>
-        <div class="shoe-find-widget" data-matchup-fit-product="${esc(s.code)}" data-matchup-fit-fallback><a href="${esc(findUrl)}" class="scan-btn shoe-find demo-cta" target="_blank" rel="noopener"><img src="${source}/assets/logo/logo.svg" alt="" width="24" height="22">${KO.find}</a></div>
+        <div class="shoe-find-widget" data-matchup-fit-product="${esc(s.code)}" data-matchup-fit-country="kr" data-matchup-fit-fallback><a href="${esc(findUrl)}" class="scan-btn shoe-find demo-cta" target="_blank" rel="noopener"><img src="${source}/assets/logo/logo.svg" alt="" width="24" height="22">${KO.find}</a></div>
         <p class="shoe-login">${KO.scannedBefore} <a href="${esc(matchupApp)}/login?from=fitting-room&amp;lang=ko">${KO.login}</a></p>
 ${buy ? `        ${buy}\n` : ""}      </div>
     </div>
